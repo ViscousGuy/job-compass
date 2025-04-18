@@ -1,0 +1,14 @@
+{
+  "name": "job-compass",
+  "version": "1.0.0",
+  "description": "Job Compass - Job Application Tracking System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shubham Jain",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
