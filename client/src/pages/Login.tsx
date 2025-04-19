@@ -1,28 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
-import { setCurrentUser } from "../store/slices/userSlice";
-import { dummyUsers } from "../data";
+import { login } from "../store/thunks/authThunks";
+import { clearErrors } from "../store/slices/authSlice";
 
 function Login() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isDarkMode = useAppSelector((state) => state.theme.isDarkMode);
+  const { isLoading, error, validationErrors, user } = useAppSelector(
+    (state) => state.auth
+  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const user = dummyUsers.find((u) => u.email === email);
+  // Clear errors when component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(clearErrors());
+    };
+  }, [dispatch]);
 
+  // Redirect if user is already logged in
+  useEffect(() => {
     if (user) {
-      dispatch(setCurrentUser(user));
       navigate(`/${user.role}/dashboard`);
-    } else {
-      setError("Invalid credentials");
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await dispatch(login({ email, password }));
+
+      if (response && response.data && response.data.user) {
+        // Redirect based on user role
+        navigate(`/${response.data.user.role}/dashboard`);
+      }
+    } catch (error) {
+      // Error is already handled in the thunk
+      console.error("Login failed");
     }
   };
 
@@ -42,6 +62,16 @@ function Login() {
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
+          </div>
+        )}
+
+        {validationErrors && Object.keys(validationErrors).length > 0 && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <ul className="list-disc pl-5">
+              {Object.entries(validationErrors).map(([field, message]) => (
+                <li key={field}>{message}</li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -75,8 +105,9 @@ function Login() {
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+            disabled={isLoading}
           >
-            Sign In
+            {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
       </div>

@@ -14,6 +14,7 @@ interface EnvConfig {
   CLOUDINARY_CLOUD_NAME: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET: string;
+  CLIENT_URL: string;
 }
 
 // Required environment variables
@@ -41,6 +42,7 @@ export const config: EnvConfig = {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || "",
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || "",
+  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:5173",
 };
 
 export { checkEnv };

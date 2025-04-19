@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { authService } from "../services/auth.service.js";
 import { authValidator } from "../validators/auth.validator.js";
 import { ZodError } from "zod";
+import jwt from "jsonwebtoken";
+import { config } from "../config/env.config.js";
 
 export const authController = {
-  register: async (req: Request, res: Response, next: NextFunction)  => {
+  register: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Validate request body
       const validatedData = authValidator.register.parse(req.body);
@@ -131,6 +133,31 @@ export const authController = {
       res.status(200).json({
         status: "success",
         message: "User logged out successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getCurrentUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // User is already available from the protect middleware
+      const user = req.user;
+
+      // Generate a fresh token
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        config.JWT_SECRET,
+        { expiresIn: config.JWT_EXPIRES_IN }
+      );
+
+      // Send response
+      res.status(200).json({
+        status: "success",
+        message: "User retrieved successfully",
+        data: {
+          user,
+          token,
+        },
       });
     } catch (error) {
       next(error);

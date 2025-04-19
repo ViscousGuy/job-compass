@@ -5,7 +5,6 @@ import { checkEnv, config } from "./config/env.config.js";
 import { connectDB } from "./config/db.config.js";
 import apiRoutes from "./routes/index.js";
 
-
 // Check environment variables
 checkEnv();
 
@@ -17,11 +16,17 @@ const PORT = config.PORT;
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
-
 
 // API Routes
 app.use("/api/v1", apiRoutes);

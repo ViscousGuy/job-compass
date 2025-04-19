@@ -24,4 +24,6 @@ router.post("/login", authController.login);
  * @access  Private
  */
 router.post("/logout", authMiddleware.protect, authController.logout);
+router.get("/me", authMiddleware.protect, authController.getCurrentUser);
+
 export default router;

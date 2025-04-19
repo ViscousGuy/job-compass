@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { toggleDarkMode } from "../store/slices/themeSlice";
+import UserProfileMenu from "./UserProfileMenu";
 
 function Navbar() {
   const dispatch = useAppDispatch();
   const isDarkMode = useAppSelector((state) => state.theme.isDarkMode);
-  const currentUser = useAppSelector((state) => state.user.currentUser);
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <nav
@@ -34,15 +35,18 @@ function Navbar() {
               Jobs
             </Link>
 
-            {currentUser ? (
-              <Link
-                to={`/${currentUser.role}/dashboard`}
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-gray-700"
-                } hover:text-blue-600`}
-              >
-                Dashboard
-              </Link>
+            {user ? (
+              <>
+                <Link
+                  to={`/${user.role}/dashboard`}
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
+                  } hover:text-blue-600`}
+                >
+                  Dashboard
+                </Link>
+                <UserProfileMenu />
+              </>
             ) : (
               <Link
                 to="/login"
