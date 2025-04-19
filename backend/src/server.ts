@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { checkEnv, config } from "./config/env.config.js";
 import { connectDB } from "./config/db.config.js";
 import apiRoutes from "./routes/index.js";
+
 
 // Check environment variables
 checkEnv();
@@ -18,6 +20,8 @@ connectDB();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(cookieParser());
+
 
 // API Routes
 app.use("/api/v1", apiRoutes);

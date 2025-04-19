@@ -1,5 +1,6 @@
 import express from "express";
 import { authController } from "../controllers/auth.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -22,6 +23,5 @@ router.post("/login", authController.login);
  * @desc    User logout
  * @access  Private
  */
-router.post("/logout", authController.logout);
-
+router.post("/logout", authMiddleware.protect, authController.logout);
 export default router;
