@@ -26,17 +26,16 @@ function Navbar() {
           </Link>
 
           <div className="flex items-center space-x-4">
-            <Link
-              to="/jobs"
-              className={`${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              } hover:text-blue-600`}
-            >
-              Jobs
-            </Link>
-
-            {user ? (
+            {user && (
               <>
+                <Link
+                  to="/jobs"
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-gray-700"
+                  } hover:text-blue-600`}
+                >
+                  Jobs
+                </Link>
                 <Link
                   to={`/${user.role}/dashboard`}
                   className={`${
@@ -47,7 +46,9 @@ function Navbar() {
                 </Link>
                 <UserProfileMenu />
               </>
-            ) : (
+            )}
+
+            {!user && (
               <Link
                 to="/login"
                 className={`${

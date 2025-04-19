@@ -5,6 +5,7 @@ import { useAppSelector } from "../store/hooks";
 
 function Home() {
   const isDarkMode = useAppSelector((state) => state.theme.isDarkMode);
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <div className={`${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -16,10 +17,10 @@ function Home() {
 
         <div className="flex justify-center gap-4">
           <Link
-            to="/jobs"
+            to={user ? "/jobs" : "/login"}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
           >
-            Browse Jobs
+            {user ? "Browse Jobs" : "Login to Browse Jobs"}
           </Link>
           <Link
             to="/register"
