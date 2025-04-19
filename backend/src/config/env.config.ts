@@ -11,6 +11,9 @@ interface EnvConfig {
   JWT_SECRET: string;
   JWT_EXPIRES_IN: string;
   JWT_COOKIE_EXPIRES_IN: string;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 
 // Required environment variables
@@ -35,6 +38,9 @@ export const config: EnvConfig = {
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key-should-be-in-env",
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "90d",
   JWT_COOKIE_EXPIRES_IN: process.env.JWT_COOKIE_EXPIRES_IN || "90",
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || "",
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || "",
 };
 
 export { checkEnv };

@@ -1,6 +1,8 @@
-import express from 'express';
-import { applicationsController } from '../controllers/applications.controller.js';
-import { authMiddleware } from '../middleware/auth.middleware.js';
+import express from "express";
+import { applicationsController } from "../controllers/applications.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
+import { uploadMiddleware } from '../middleware/upload.middleware.js';
+
 
 const router = express.Router();
 
@@ -9,30 +11,48 @@ const router = express.Router();
  * @desc    Get all applications (admin/employer)
  * @access  Private
  */
-router.get('/', authMiddleware.protect, applicationsController.getAllApplications);
+router.get(
+  "/",
+  authMiddleware.protect,
+  applicationsController.getAllApplications
+);
 
 /**
  * @route   GET /api/v1/applications/:id
  * @desc    Get application by ID
  * @access  Private
  */
-router.get('/:id', authMiddleware.protect, applicationsController.getApplicationById);
+router.get(
+  "/:id",
+  authMiddleware.protect,
+  applicationsController.getApplicationById
+);
 
 /**
  * @route   POST /api/v1/applications
  * @desc    Create a new application
  * @access  Private
  */
-router.post('/', authMiddleware.protect, applicationsController.createApplication);
+router.post(
+  "/",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("jobseeker"),
+  uploadMiddleware.fields([
+    { name: "resume", maxCount: 1 },
+    { name: "coverLetter", maxCount: 1 },
+  ]),
+  applicationsController.createApplication,
+);
 
 /**
  * @route   PUT /api/v1/applications/:id/status
  * @desc    Update application status
  * @access  Private (Employer or admin)
  */
-router.put('/:id/status', 
-  authMiddleware.protect, 
-  authMiddleware.restrictTo('employer', 'admin'), 
+router.patch(
+  "/:id/status",
+  authMiddleware.protect,
+  authMiddleware.restrictTo("employer"),
   applicationsController.updateApplicationStatus
 );
 
@@ -41,6 +61,10 @@ router.put('/:id/status',
  * @desc    Delete an application
  * @access  Private (Application owner or admin)
  */
-router.delete('/:id', authMiddleware.protect, applicationsController.deleteApplication);
+router.delete(
+  "/:id",
+  authMiddleware.protect,
+  applicationsController.deleteApplication
+);
 
 export default router;
