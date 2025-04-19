@@ -1,24 +1,85 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, MapPin, Building2, Clock } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, MapPin, Building2, Clock, AlertCircle } from "lucide-react";
 import { useAppSelector } from "../store/hooks";
-import { dummyJobs } from "../data";
+import { getJobs } from "../services/jobService";
+import { Job, JobsResponse } from "../types";
+import JobCard from "../components/JobCard";
+import Pagination from "../components/Pagination";
 
 function Jobs() {
   const isDarkMode = useAppSelector((state) => state.theme.isDarkMode);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredJobs = dummyJobs.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      !selectedCategory || job.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [limit] = useState(10);
 
-  const categories = [...new Set(dummyJobs.map((job) => job.category))];
+  // Debounced search term to avoid too many API calls
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  // Handle search term debounce
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page on new search
+    }, 500);
+
+    return () => clearTimeout(timerId);
+  }, [searchTerm]);
+
+  // Handle category change
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page on category change
+  }, [selectedCategory]);
+
+  // Fetch jobs
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await getJobs(
+          currentPage,
+          limit,
+          debouncedSearchTerm,
+          selectedCategory
+        );
+
+        setJobs(response.data);
+        setTotalPages(response.pagination.totalPages);
+        setTotalJobs(response.pagination.totalJobs);
+
+        // Extract unique categories if we don't have them yet
+        if (categories.length === 0) {
+          const uniqueCategories = [
+            ...new Set(response.data.map((job) => job.category)),
+          ];
+          setCategories(uniqueCategories);
+        }
+      } catch (err) {
+        console.error("Failed to fetch jobs:", err);
+        setError("Failed to load jobs. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, [currentPage, limit, debouncedSearchTerm, selectedCategory]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className={`${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -60,58 +121,68 @@ function Jobs() {
             ))}
           </select>
         </div>
+
+        {/* Results summary */}
+        <div className="text-sm text-gray-500 mb-4">
+          {!loading && !error && (
+            <p>
+              Showing {jobs.length} of {totalJobs} jobs
+              {debouncedSearchTerm && ` matching "${debouncedSearchTerm}"`}
+              {selectedCategory && ` in ${selectedCategory}`}
+            </p>
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-6">
-        {filteredJobs.map((job) => (
-          <Link
-            key={job.id}
-            to={`/jobs/${job.id}`}
-            className={`${
-              isDarkMode
-                ? "bg-gray-800 hover:bg-gray-700"
-                : "bg-white hover:bg-gray-50"
-            } p-6 rounded-lg shadow-md transition`}
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-xl font-semibold mb-2">{job.title}</h2>
-                <div className="flex items-center text-gray-500 mb-2">
-                  <Building2 className="w-4 h-4 mr-1" />
-                  <span className="mr-4">{job.company}</span>
-                  <MapPin className="w-4 h-4 mr-1" />
-                  <span>{job.location}</span>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      isDarkMode ? "bg-gray-700" : "bg-gray-100"
-                    }`}
-                  >
-                    {job.type}
-                  </span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      isDarkMode ? "bg-gray-700" : "bg-gray-100"
-                    }`}
-                  >
-                    {job.category}
-                  </span>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-semibold text-blue-600">
-                  {job.salary}
-                </div>
-                <div className="flex items-center text-gray-500 mt-2">
-                  <Clock className="w-4 h-4 mr-1" />
-                  <span className="text-sm">Posted {job.postedDate}</span>
-                </div>
-              </div>
+      {/* Error message */}
+      {error && (
+        <div
+          className={`p-4 mb-6 rounded-lg ${
+            isDarkMode ? "bg-red-900" : "bg-red-100"
+          } text-red-700 flex items-center`}
+        >
+          <AlertCircle className="w-5 h-5 mr-2" />
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      ) : (
+        <>
+          {/* Job listings */}
+          {jobs.length > 0 ? (
+            <div className="grid gap-6">
+              {jobs.map((job) => (
+                <JobCard key={job._id} job={job} />
+              ))}
             </div>
-          </Link>
-        ))}
-      </div>
+          ) : (
+            <div
+              className={`text-center py-12 ${
+                isDarkMode ? "bg-gray-800" : "bg-gray-100"
+              } rounded-lg`}
+            >
+              <p className="text-xl">No jobs found matching your criteria</p>
+              <p className="mt-2 text-gray-500">
+                Try adjusting your search or filters
+              </p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

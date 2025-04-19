@@ -1,5 +1,10 @@
 export interface Job {
-  id: string;
+  _id: string;
+  employerId: {
+    _id: string;
+    name: string;
+    company: string;
+  };
   title: string;
   company: string;
   location: string;
@@ -9,8 +14,21 @@ export interface Job {
   requirements: string[];
   postedDate: string;
   category: string;
+  createdAt: string;
+  updatedAt: string;
 }
-
+export interface JobsResponse {
+  status: string;
+  message: string;
+  results: number;
+  pagination: {
+    totalJobs: number;
+    totalPages: number;
+    currentPage: number;
+    limit: number;
+  };
+  data: Job[];
+}
 export interface Application {
   id: string;
   jobId: string;
