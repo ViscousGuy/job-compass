@@ -3,6 +3,8 @@ import themeReducer from "./slices/themeSlice";
 import userReducer from "./slices/userSlice";
 import authReducer from "./slices/authSlice";
 import jobReducer from "./slices/jobSlice";
+import applicationReducer from "./slices/applicationSlice";
+
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +12,7 @@ export const store = configureStore({
     user: userReducer,
     auth: authReducer,
     job: jobReducer,
+    application: applicationReducer,
   },
 });
 

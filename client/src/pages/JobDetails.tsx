@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { MapPin, Building2, Clock, BriefcaseIcon, Send } from "lucide-react";
-import { useAppSelector } from "../store/hooks";
 import { api } from "../utils/api";
 import { Job } from "../types";
 import JobApplicationForm from "../components/JobApplicationForm";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { createApplication } from "../store/thunks/applicationThunks";
+import { resetApplicationState } from "../store/slices/applicationSlice";
 
 function JobDetails() {
   const { id } = useParams();
@@ -16,6 +19,10 @@ function JobDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [applicationSuccess, setApplicationSuccess] = useState(false);
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -44,19 +51,37 @@ function JobDetails() {
     setShowApplicationForm(true);
   };
 
-  const handleApplicationSubmit = (formData: FormData) => {
-    // For now, just console log the form data
-    console.log("Application form data:", Object.fromEntries(formData));
+  const handleApplicationSubmit = async (formData: FormData) => {
+    try {
+      setSubmitting(true);
+      const result = await dispatch(createApplication(formData));
 
-    // Log the file paths for demonstration
-    console.log("jobId:", formData.get("jobId"));
-    console.log("resume:", formData.get("resume"));
-    console.log("coverLetter:", formData.get("coverLetter"));
+      // Check if the action was successful
+      if (!result.error) {
+        // Show success message
+        toast.success("Application submitted successfully!");
+        setApplicationSuccess(true);
+        setShowApplicationForm(false);
 
-    // Close the form
-    setShowApplicationForm(false);
+        // Reset application state after 3 seconds
+        setTimeout(() => {
+          dispatch(resetApplicationState());
+        }, 3000);
+      } else {
+        // Handle error from the action
+        toast.error(result.error || "Failed to submit application");
+        console.error("Application submission failed:", result.error);
+      }
+    } catch (err) {
+      // Handle any other errors
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to submit application";
+      toast.error(errorMessage);
+      console.error("Application submission failed:", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -129,21 +154,28 @@ function JobDetails() {
           </div>
         </div>
 
-        {currentUser?.currentUser?.role === "jobseeker" && !showApplicationForm && (
-          <button
-            onClick={handleApplyClick}
-            className="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
-          >
-            <Send className="w-5 h-5 mr-2" />
-            Apply Now
-          </button>
+        {currentUser?.currentUser?.role === "jobseeker" &&
+          !showApplicationForm && (
+            <button
+              onClick={handleApplyClick}
+              className="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
+            >
+              <Send className="w-5 h-5 mr-2" />
+              Apply Now
+            </button>
+          )}
+        {applicationSuccess && (
+          <div className="mt-4 p-4 bg-green-100 text-green-800 rounded-lg">
+            Your application has been submitted successfully! The employer will
+            review it soon.
+          </div>
         )}
-
         {showApplicationForm && (
           <JobApplicationForm
             jobId={job._id}
             onCancel={() => setShowApplicationForm(false)}
             onSubmit={handleApplicationSubmit}
+            isSubmitting={submitting}
           />
         )}
       </div>
