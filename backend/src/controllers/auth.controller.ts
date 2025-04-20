@@ -26,6 +26,7 @@ export const authController = {
         ),
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
       });
 
       // Send response
@@ -83,6 +84,7 @@ export const authController = {
         ),
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
       });
 
       // Send response
@@ -127,6 +129,7 @@ export const authController = {
         expires: new Date(Date.now() - 10000),
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
       });
 
       // Send response
