@@ -32,12 +32,13 @@ export const createApplication =
           response.data.message || "Failed to submit application"
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage =
-        error instanceof Error ? error.message : "An unknown error occurred";
+        error.response?.data?.message ||
+        (error instanceof Error ? error.message : "An unknown error occurred");
 
       dispatch(applicationActionFailure(errorMessage));
-      throw error;
+      throw new Error(errorMessage);
     }
   };
 

@@ -12,14 +12,41 @@ import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { fetchUserApplications } from "../store/thunks/applicationThunks";
 import { Application } from "../types";
 
-const applicationData = [
-  { week: "Week 1", applications: 3 },
-  { week: "Week 2", applications: 5 },
-  { week: "Week 3", applications: 2 },
-  { week: "Week 4", applications: 7 },
-  { week: "Week 5", applications: 4 },
-  { week: "Week 6", applications: 6 },
-];
+function generateApplicationActivityData(applications: any[]) {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0); // Normalize to start of day
+
+  const weeksData = Array.from({ length: 6 }, (_, i) => {
+    const start = new Date(now);
+    start.setDate(start.getDate() - (6 - i - 1) * 7);
+    start.setDate(start.getDate() - start.getDay()); // start of week (Sunday)
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6); // end of week (Saturday)
+    end.setHours(23, 59, 59, 999);
+
+    return {
+      week: `Week ${i + 1}`,
+      applications: 0,
+      startDate: start,
+      endDate: end,
+    };
+  });
+
+  // Count applications per week
+  applications.forEach((app) => {
+    const appDate = new Date(app.appliedDate);
+    for (let i = 0; i < weeksData.length; i++) {
+      const { startDate, endDate } = weeksData[i];
+      if (appDate >= startDate && appDate <= endDate) {
+        weeksData[i].applications++;
+        break;
+      }
+    }
+  });
+
+  return weeksData.map(({ week, applications }) => ({ week, applications }));
+}
 
 function JobSeekerDashboard() {
   const dispatch = useAppDispatch();
@@ -28,6 +55,7 @@ function JobSeekerDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [applications, setApplications] = useState<any[]>([]);
+  const [applicationChartData, setApplicationChartData] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -36,6 +64,8 @@ function JobSeekerDashboard() {
         const result = await dispatch(fetchUserApplications());
         if (result && result.data) {
           setApplications(result.data);
+          // Generate chart data from real applications
+          setApplicationChartData(generateApplicationActivityData(result.data));
         }
       } catch (err) {
         console.error("Failed to fetch applications:", err);
@@ -120,10 +150,24 @@ function JobSeekerDashboard() {
         <h2 className="text-xl font-bold mb-4">Application Activity</h2>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={applicationData}>
+            <LineChart data={applicationChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
-              <YAxis />
+              <YAxis
+                allowDecimals={false}
+                domain={[0, "dataMax + 1"]}
+                tickCount={Math.min(
+                  5,
+                  Math.max(
+                    1,
+                    Math.ceil(
+                      Math.max(
+                        ...applicationChartData.map((d) => d.applications)
+                      )
+                    ) + 1
+                  )
+                )}
+              />
               <Tooltip />
               <Line
                 type="monotone"

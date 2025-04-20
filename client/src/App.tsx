@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "./store/hooks";
 import { checkAuthStatus } from "./store/thunks/authThunks";
+import { Toaster } from "react-hot-toast";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Jobs from "./pages/Jobs";
@@ -82,6 +83,7 @@ function App() {
           </Routes>
         </main>
       </BrowserRouter>
+      <Toaster position="top-right" />
     </div>
   );
 }

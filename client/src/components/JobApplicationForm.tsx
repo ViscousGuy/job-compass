@@ -140,7 +140,7 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({
 
           <div>
             <label className="block mb-2 text-sm font-medium">
-              Cover Letter (PDF){" "}<span className="text-red-500">*</span>
+              Cover Letter (PDF) <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center">
               <input
@@ -167,10 +167,15 @@ const JobApplicationForm: React.FC<JobApplicationFormProps> = ({
                   <X size={16} />
                 </button>
               )}
-              {coverLetterError && (
-                <p className="text-red-500 text-sm mt-1">{coverLetterError}</p>
-              )}
             </div>
+            {!coverLetterFile && (
+              <p className="mt-1 text-xs text-red-500">
+                Cover Letter is required
+              </p>
+            )}
+            {coverLetterError && (
+              <p className="text-red-500 text-sm mt-1">{coverLetterError}</p>
+            )}
           </div>
         </div>
 
