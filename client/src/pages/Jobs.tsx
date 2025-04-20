@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, MapPin, Building2, Clock, AlertCircle } from "lucide-react";
 import { useAppSelector } from "../store/hooks";
 import { getJobs } from "../services/jobService";
+import { api } from "../utils/api";
 import { Job, JobsResponse } from "../types";
 import JobCard from "../components/JobCard";
 import Pagination from "../components/Pagination";
@@ -14,6 +15,8 @@ function Jobs() {
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
+  const currentUser = useAppSelector((state) => state.auth.user);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,6 +77,27 @@ function Jobs() {
 
     fetchJobs();
   }, [currentPage, limit, debouncedSearchTerm, selectedCategory]);
+
+  // Fetch applied jobs if user is logged in
+  useEffect(() => {
+    const fetchAppliedJobs = async () => {
+      if (!currentUser?._id) {
+        setAppliedJobIds([]);
+        return;
+      }
+
+      try {
+        const response = await api.get("/applications/applied-jobs");
+        if (response.data.status === "success") {
+          setAppliedJobIds(response.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch applied jobs:", err);
+      }
+    };
+
+    fetchAppliedJobs();
+  }, [currentUser?._id]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -157,7 +181,11 @@ function Jobs() {
           {jobs.length > 0 ? (
             <div className="grid gap-6">
               {jobs.map((job) => (
-                <JobCard key={job._id} job={job} />
+                <JobCard
+                  key={job._id}
+                  job={job}
+                  hasApplied={appliedJobIds.includes(job._id)}
+                />
               ))}
             </div>
           ) : (

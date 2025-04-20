@@ -1,8 +1,7 @@
 import express from "express";
 import { applicationsController } from "../controllers/applications.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import { uploadMiddleware } from '../middleware/upload.middleware.js';
-
+import { uploadMiddleware } from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
@@ -17,7 +16,18 @@ router.get(
   authMiddleware.protect,
   applicationsController.getAllApplications
 );
+/**
+ * @route   GET /api/v1/applications/applied-jobs
+ * @desc    Get all job IDs the current user has applied for
+ * @access  Private
+ */
 
+router.get(
+  "/applied-jobs",
+  // @ts-ignore
+  authMiddleware.protect,
+  applicationsController.getUserApplicationJobIds
+);
 /**
  * @route   GET /api/v1/applications/:id
  * @desc    Get application by ID
@@ -44,7 +54,7 @@ router.post(
     { name: "resume", maxCount: 1 },
     { name: "coverLetter", maxCount: 1 },
   ]),
-  applicationsController.createApplication,
+  applicationsController.createApplication
 );
 
 /**

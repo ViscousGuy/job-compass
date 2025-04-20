@@ -213,4 +213,11 @@ export const applicationService = {
 
     return true;
   },
+  getUserAppliedJobIds: async (userId: string): Promise<string[]> => {
+    const applications = await Application.find({
+      userId: new mongoose.Types.ObjectId(userId),
+    }).select("jobId -_id");
+
+    return applications.map((app) => app.jobId.toString());
+  },
 };

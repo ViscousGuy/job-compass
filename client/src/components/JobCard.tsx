@@ -1,17 +1,18 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, Building2, Clock } from 'lucide-react';
-import { Job } from '../types';
-import { useAppSelector } from '../store/hooks';
-import { formatDate } from '../utils/formatDate';
+import React from "react";
+import { Link } from "react-router-dom";
+import { MapPin, Building2, Clock, CheckCircle } from "lucide-react";
+import { Job } from "../types";
+import { useAppSelector } from "../store/hooks";
+import { formatDate } from "../utils/formatDate";
 
 interface JobCardProps {
   job: Job;
+  hasApplied?: boolean;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ job }) => {
+const JobCard: React.FC<JobCardProps> = ({ job, hasApplied = false }) => {
   const isDarkMode = useAppSelector((state) => state.theme.isDarkMode);
-  
+
   return (
     <Link
       to={`/jobs/${job._id}`}
@@ -19,7 +20,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
         isDarkMode
           ? "bg-gray-800 hover:bg-gray-700"
           : "bg-white hover:bg-gray-50"
-      } p-6 rounded-lg shadow-md transition`}
+      } p-6 rounded-lg shadow-md transition relative`}
     >
       <div className="flex justify-between items-start">
         <div>
@@ -55,6 +56,12 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             <Clock className="w-4 h-4 mr-1" />
             <span className="text-sm">Posted {formatDate(job.postedDate)}</span>
           </div>
+          {hasApplied && (
+            <div className="flex items-center text-green-600 mt-2 justify-end">
+              <CheckCircle className="w-4 h-4 mr-1" />
+              <span className="text-sm font-medium">Applied</span>
+            </div>
+          )}
         </div>
       </div>
     </Link>

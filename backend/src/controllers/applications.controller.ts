@@ -307,4 +307,28 @@ export const applicationsController = {
       next(error);
     }
   },
+  getUserApplicationJobIds: async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?._id;
+
+      if (!userId) {
+        return res.status(401).json({
+          status: "fail",
+          message: "You must be logged in to view your applications",
+        });
+      }
+
+      const jobIds = await applicationService.getUserAppliedJobIds(userId);
+
+      return res.status(200).json({
+        status: "success",
+        data: jobIds,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to fetch applied jobs",
+      });
+    }
+  },
 };
