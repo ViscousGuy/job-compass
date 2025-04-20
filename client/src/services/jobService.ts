@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { JobsResponse } from '../types';
 
-const API_URL = 'http://localhost:5000/api/v1';
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Get all jobs with filtering, pagination, and search
 export const getJobs = async (
