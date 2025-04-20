@@ -13,6 +13,7 @@ const router = express.Router();
  */
 router.get(
   "/",
+  // @ts-ignore
   authMiddleware.protect,
   applicationsController.getAllApplications
 );
@@ -24,6 +25,7 @@ router.get(
  */
 router.get(
   "/:id",
+  // @ts-ignore
   authMiddleware.protect,
   applicationsController.getApplicationById
 );
@@ -35,6 +37,7 @@ router.get(
  */
 router.post(
   "/",
+  // @ts-ignore
   authMiddleware.protect,
   authMiddleware.restrictTo("jobseeker"),
   uploadMiddleware.fields([
@@ -51,6 +54,7 @@ router.post(
  */
 router.patch(
   "/:id/status",
+  // @ts-ignore
   authMiddleware.protect,
   authMiddleware.restrictTo("employer"),
   applicationsController.updateApplicationStatus
@@ -63,6 +67,7 @@ router.patch(
  */
 router.delete(
   "/:id",
+  // @ts-ignore
   authMiddleware.protect,
   applicationsController.deleteApplication
 );

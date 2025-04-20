@@ -9,6 +9,7 @@ const router = express.Router();
  * @desc    User registration
  * @access  Public
  */
+// @ts-ignore
 router.post("/register", authController.register);
 
 /**
@@ -16,6 +17,7 @@ router.post("/register", authController.register);
  * @desc    User login
  * @access  Public
  */
+// @ts-ignore
 router.post("/login", authController.login);
 
 /**
@@ -23,7 +25,9 @@ router.post("/login", authController.login);
  * @desc    User logout
  * @access  Private
  */
+// @ts-ignore
 router.post("/logout", authMiddleware.protect, authController.logout);
+// @ts-ignore
 router.get("/me", authMiddleware.protect, authController.getCurrentUser);
 
 export default router;

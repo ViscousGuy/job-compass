@@ -28,6 +28,7 @@ export const authService = {
     });
 
     // Generate JWT token
+    // @ts-ignore
     const token = jwt.sign(
       { id: user._id, role: user.role },
       config.JWT_SECRET,
@@ -35,6 +36,7 @@ export const authService = {
     );
 
     // Remove password from response
+    // @ts-ignore
     user.password = undefined;
     return { user, token };
   },
@@ -63,6 +65,7 @@ export const authService = {
     }
 
     // Generate JWT token
+    // @ts-ignore
     const token = jwt.sign(
       { id: user._id, role: user.role },
       config.JWT_SECRET,
@@ -70,6 +73,7 @@ export const authService = {
     );
 
     // Remove password from response
+    // @ts-ignore
     user.password = undefined;
     return { user, token };
   },

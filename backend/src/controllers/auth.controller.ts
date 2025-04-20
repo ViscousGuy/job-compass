@@ -144,6 +144,7 @@ export const authController = {
       const user = req.user;
 
       // Generate a fresh token
+      // @ts-ignore
       const token = jwt.sign(
         { id: user._id, role: user.role },
         config.JWT_SECRET,

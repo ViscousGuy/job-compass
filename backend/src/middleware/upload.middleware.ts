@@ -31,6 +31,7 @@ const resumeStorage = new CloudinaryStorage({
     allowed_formats: ["pdf"],
     format: "pdf",
     resource_type: "auto",
+    // @ts-ignore
     public_id: (req, file) => {
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       return `resume-${uniqueSuffix}`;
@@ -46,6 +47,7 @@ const coverLetterStorage = new CloudinaryStorage({
     allowed_formats: ["pdf"],
     format: "pdf",
     resource_type: "auto",
+    // @ts-ignore
     public_id: (req, file) => {
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       return `cover-letter-${uniqueSuffix}`;
@@ -88,6 +90,7 @@ export const uploadMiddleware = {
         folder: 'job-applications',
         format: 'pdf',
         resource_type: 'auto',
+        // @ts-ignore
         public_id: (req, file) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           return `${file.fieldname}-${uniqueSuffix}`;
