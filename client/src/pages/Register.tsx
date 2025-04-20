@@ -85,7 +85,6 @@ function Register() {
 
     try {
       const response = await dispatch(register(formData));
-      console.log("Registration successful:", response);
       // Show success message and redirect to login page
       alert("Registration successful! Please login with your credentials.");
       navigate("/login");
