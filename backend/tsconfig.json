@@ -9,7 +9,15 @@
     "strict": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": [
+      "node",
+      "express",
+      "multer",
+      "cors",
+      "cookie-parser",
+      "jsonwebtoken"
+    ]
   },
   "ts-node": {
     "esm": true,
