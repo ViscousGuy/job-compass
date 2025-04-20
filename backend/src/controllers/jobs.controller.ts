@@ -8,7 +8,8 @@ export const jobsController = {
   getAllJobs: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Extract query parameters
-      const { page, limit, category, location, type, search } = req.query;
+      const { page, limit, category, location, type, search, employerId } =
+        req.query;
 
       // Get jobs with pagination and filters
       const { jobs, totalJobs, totalPages } = await jobService.getAllJobs({
@@ -18,6 +19,7 @@ export const jobsController = {
         location: location as string,
         type: type as string,
         search: search as string,
+        employerId: employerId as string,
       });
 
       // Send response

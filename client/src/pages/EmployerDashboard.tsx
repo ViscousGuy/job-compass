@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -19,6 +20,7 @@ import { Job } from "../types";
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 function EmployerDashboard() {
+  const navigate = useNavigate();
   const isDarkMode = useAppSelector((state) => state.theme.isDarkMode);
   const currentUser = useAppSelector((state) => state.auth.user);
   const [showJobForm, setShowJobForm] = useState(false);
@@ -27,7 +29,7 @@ function EmployerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [monthlyData, setMonthlyData] = useState([]);
-  const [categoryData, setcategoryData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
 
   useEffect(() => {
     const fetchEmployerData = async () => {
@@ -108,7 +110,11 @@ function EmployerDashboard() {
       })
     );
 
-    setcategoryData(categoryChartData);
+    setCategoryData(categoryChartData);
+  };
+
+  const handleApplicationClick = (applicationId: string) => {
+    navigate(`/applications/${applicationId}`);
   };
 
   if (loading) {
@@ -264,9 +270,10 @@ function EmployerDashboard() {
                 return (
                   <tr
                     key={app._id}
+                    onClick={() => handleApplicationClick(app._id)}
                     className={`${
                       isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
-                    }`}
+                    } cursor-pointer transition-colors`}
                   >
                     <td className="px-6 py-4">{job?.title || "Unknown Job"}</td>
                     <td className="px-6 py-4">

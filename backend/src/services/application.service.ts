@@ -136,7 +136,7 @@ export const applicationService = {
       throw new Error("Not authorized to view this application");
     } else if (userRole === "employer") {
       const job = await Job.findById(application.jobId);
-      if (!job || job.employerId.toString() !== currentUserId) {
+      if (!job || job.employerId.toString() != currentUserId) {
         throw new Error("Not authorized to view this application");
       }
     }

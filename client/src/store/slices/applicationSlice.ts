@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Application } from "../../types";
+import {
+  fetchApplicationById,
+  updateApplicationStatus,
+} from "../thunks/applicationThunks";
 
 interface ApplicationState {
   applications: Application[];
@@ -41,11 +45,57 @@ const applicationSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
+      state.currentApplication = null;
     },
     setApplications: (state, action: PayloadAction<Application[]>) => {
       state.applications = action.payload;
       state.loading = false;
     },
+    clearCurrentApplication: (state) => {
+      state.currentApplication = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch application by ID
+      .addCase(fetchApplicationById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchApplicationById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentApplication = action.payload.data;
+      })
+      .addCase(fetchApplicationById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload
+          ? (action.payload as any).message
+          : "Failed to fetch application";
+      })
+
+      // Update application status
+      .addCase(updateApplicationStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateApplicationStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentApplication = action.payload.data;
+
+        // Also update the application in the applications array
+        const index = state.applications.findIndex(
+          (app) => app._id === action.payload.data._id
+        );
+        if (index !== -1) {
+          state.applications[index] = action.payload.data;
+        }
+      })
+      .addCase(updateApplicationStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload
+          ? (action.payload as any).message
+          : "Failed to update application status";
+      });
   },
 });
 
@@ -55,6 +105,7 @@ export const {
   applicationActionFailure,
   resetApplicationState,
   setApplications,
+  clearCurrentApplication,
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;

@@ -10,6 +10,7 @@ export const jobService = {
     location?: string;
     type?: string;
     search?: string;
+    employerId?: string;
   }): Promise<{ jobs: IJob[]; totalJobs: number; totalPages: number }> => {
     // Parse pagination parameters
     const page = parseInt(queryParams.page || "1");
@@ -32,6 +33,11 @@ export const jobService = {
     // Add job type filter if provided
     if (queryParams.type) {
       filter.type = queryParams.type;
+    }
+
+    // Add employerId filter if provided
+    if (queryParams.employerId) {
+      filter.employerId = new mongoose.Types.ObjectId(queryParams.employerId);
     }
 
     // Add search functionality

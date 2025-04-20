@@ -22,7 +22,7 @@ function Navbar() {
               isDarkMode ? "text-white" : "text-gray-900"
             }`}
           >
-            JobPortal
+            Job Compass
           </Link>
 
           <div className="flex items-center space-x-4">
